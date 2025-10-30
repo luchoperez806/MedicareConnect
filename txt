@@ -1,0 +1,4 @@
+CREDENCIALES (para pruebas):
+ADMIN: admin@medicareconnect.site / admin123
+DOCTOR: dr.prueba@medicareconnect.site / prueba123
+PACIENTE: paciente.prueba@medicareconnect.site / prueba123

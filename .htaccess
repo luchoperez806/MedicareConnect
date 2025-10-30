@@ -1,0 +1,9 @@
+# Habilitar mod_rewrite
+RewriteEngine On
+
+# Permitir acceder a páginas .php sin escribir la extensión
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^/]+)/?$ $1.php [L]
+
+# Asegurar que los enlaces tipo /verificar funcionen
+RewriteRule ^verificar/?$ verificar.php [L,QSA]
