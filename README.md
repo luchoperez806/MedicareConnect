@@ -39,10 +39,15 @@ El sistema permite gestionar turnos médicos, realizar consultas por videollamad
 ## 📁 Estructura del proyecto
 
 /doctor/ -> Panel médico y gestión de pacientes
+
 /patient/ -> Panel de paciente y carga de estudios
+
 /includes/ -> Conexión a base de datos, funciones y librerías
+
 /uploads/ -> Almacenamiento de imágenes y documentos
+
 /verificar.php -> Verificación pública del código QR
+
 /video_call.php -> Módulo de teleconsulta (videollamada)
 
 
