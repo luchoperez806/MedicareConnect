@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once "../includes/db.php";
-require_once "../includes/header.php";
 
 // Seguridad: solo pacientes logueados
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'patient') {
@@ -44,24 +43,61 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Cambiar Contraseña | MediCareConnect</title>
+<title>Cambiar Contraseña | MedicareConnect</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+/* ==== ESTILOS GENERALES ==== */
 body {
-  background: linear-gradient(135deg, #3b82f6, #06b6d4);
-  font-family: 'Poppins', sans-serif;
   margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
   height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
+
+/* ==== ENCABEZADO ==== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 900px;
+  background: #1e3a8a;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  margin-top: 30px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+  font-weight: 700;
+}
+.header a {
+  background: linear-gradient(90deg, #4338ca, #1e3a8a);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 15px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+}
+.header a:hover {
+  background: #0f2f8a;
+}
+
+/* ==== CONTENEDOR DEL FORM ==== */
 .form-container {
   background: #fff;
   width: 400px;
-  padding: 30px;
+  padding: 35px;
   border-radius: 20px;
-  box-shadow: 0 10px 35px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.25);
   text-align: center;
+  margin-top: 40px;
   animation: fadeIn .4s ease;
 }
 h2 {
@@ -105,6 +141,8 @@ button {
 button:hover {
   filter: brightness(1.1);
 }
+
+/* ==== MENSAJES ==== */
 .mensaje {
   padding: 10px;
   border-radius: 8px;
@@ -113,18 +151,36 @@ button:hover {
 }
 .mensaje.error { background: #fee2e2; color: #991b1b; }
 .mensaje.success { background: #dcfce7; color: #065f46; }
+
+/* ==== ENLACE VOLVER ==== */
 .back {
   display: inline-block;
   margin-top: 15px;
   text-decoration: none;
   color: #3b82f6;
   font-weight: 600;
+  transition: 0.3s;
 }
-@keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+.back:hover {
+  color: #1e3a8a;
+}
+
+/* ==== ANIMACIÓN ==== */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
 </style>
 </head>
 <body>
 
+<!-- Encabezado -->
+<div class="header">
+  <h1>MedicareConnect</h1>
+  <a href="../logout.php">Cerrar sesión</a>
+</div>
+
+<!-- Formulario -->
 <div class="form-container">
   <h2>Cambiar Contraseña</h2>
 

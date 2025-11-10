@@ -259,6 +259,41 @@ body{
 .btn-outline{
   border:1px solid #cfe2ff; color:#2563eb; background:#fff; font-weight:700;
 }
+
+.nav-reset {
+  background: linear-gradient(90deg, #f59e0b, #facc15);
+  color: #fff !important;
+  font-weight: 700;
+  border-radius: 12px;
+  margin: 6px 10px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 15px rgba(250, 204, 21, 0.35);
+  transition: all 0.25s ease-in-out;
+}
+.nav-reset:hover {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(250, 204, 21, 0.45);
+}
+.container-admin {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(59,130,246,.08);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #0f172a;
+}
+
+.container-admin h5 {
+  font-weight: 600;
+  color: #1e3a8a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 </style>
 
 <div class="container-fluid py-3">
@@ -272,26 +307,33 @@ body{
         </div>
         <nav class="nav flex-column mt-2">
           <a class="nav-link active" href="dashboard.php"><span class="label">Inicio</span></a>
-          <a class="nav-link" href="medicos.php"> <span class="label">Médicos</span></a>
-          <a class="nav-link" href="pacientes.php"> <span class="label">Pacientes</span></a>
+          <a class="nav-link" href="medicos.php"><span class="label">Médicos</span></a>
+          <a class="nav-link" href="pacientes.php"><span class="label">Pacientes</span></a>
           <a class="nav-link" href="appointments.php"><span class="label">Citas</span></a>
           <a class="nav-link" href="estudios.php"><span class="label">Estudios</span></a>
+        
+          <hr style="border-color:rgba(255,255,255,.2);margin:10px 14px;">
+        
+          <a class="nav-link nav-reset" href="reset_password.php"><span class="label">Resetear Contraseña</span> </a>
+        
           <a class="nav-link" href="logout.php"><span class="label">Salir</span></a>
         </nav>
+
       </div>
     </div>
 
-    <!-- Main -->
+        <!-- Main -->
     <div class="col-12 col-lg-9">
       <!-- Topbar -->
-      <div class="topbar mb-3">
-        <div class="search">
-          🔎 <input type="text" placeholder="Buscar rápido (Ctrl+/)">
-        </div>
-        <div>Bienvenido, <strong><?php echo htmlspecialchars($adminName); ?></strong></div>
-      </div>
+      
+     <!-- Bloque de bienvenida -->
+    <div class="container-admin mb-4">
+      <h5 class="m-0">
+        Bienvenido, <strong><?php echo htmlspecialchars($adminName); ?></strong>
+      </h5>
+    </div>
 
-      <!-- KPIs -->
+     <!-- KPIs -->
       <div class="row g-3 kpi">
         <div class="col-6 col-md-3">
           <div class="card p-3">
@@ -323,6 +365,7 @@ body{
           </div>
         </div>
       </div>
+      <!-- 🟢 ESTA LINEA SE QUEDA ACA, NO ANTES -->
 
       <!-- Gráficos -->
       <div class="row g-3 mt-1">

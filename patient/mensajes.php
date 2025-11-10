@@ -1,58 +1,61 @@
 <?php
 session_start();
+require_once "../includes/db.php";
+
+// ===== Seguridad =====
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'patient') {
-    header("Location: ../index.php");
+    header("Location: ../login.php?role=patient");
     exit();
 }
-require_once "../includes/db.php";
-$user = $_SESSION['user'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $doctor_id = $_POST['doctor_id'];
-    $mensaje = trim($_POST['mensaje']);
-    if ($mensaje !== '') {
-        $stmt = $pdo->prepare("INSERT INTO mensajes (paciente_id, doctor_id, contenido, fecha) VALUES (?, ?, ?, NOW())");
-        $stmt->execute([$user['id'], $doctor_id, $mensaje]);
-    }
+$patient_user_id = (int)$_SESSION['user']['id'];
+
+// Obtener el ID real del paciente
+$stmtP = $pdo->prepare("SELECT id FROM patients WHERE user_id = ?");
+$stmtP->execute([$patient_user_id]);
+$patient = $stmtP->fetch(PDO::FETCH_ASSOC);
+if (!$patient) {
+    die("Error: No se encontró el registro del paciente.");
 }
+$patient_id = (int)$patient['id'];
 
-// ✅ Corrección de nombres
-$stmtDocs = $pdo->query("SELECT id, doctor_name FROM doctors ORDER BY doctor_name");
-$doctores = $stmtDocs->fetchAll(PDO::FETCH_ASSOC);
+// ===== Buscar médicos con chats activos o turnos confirmados =====
+$stmt = $pdo->prepare("
+    SELECT DISTINCT d.id AS doctor_id, u.fullName AS doctor_fullname, MAX(m.sent_at) AS last_msg
+    FROM doctors d
+    JOIN users u ON d.user_id = u.id
+    JOIN appointments a ON a.doctor_id = d.id
+    LEFT JOIN messages m ON m.doctor_id = d.id AND m.patient_id = ?
+    WHERE a.patient_id = ?
+    GROUP BY d.id, u.fullName
+    ORDER BY last_msg DESC, u.fullName ASC
+");
+$stmt->execute([$patient_id, $patient_id]);
+$chats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+include("../includes/header.php");
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Mensajes - MediCareConnect</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<style>
-body{font-family:'Poppins',sans-serif;background:#f3f7fa;margin:0;}
-header{background:linear-gradient(135deg,#4f6df5,#66a6ff);color:white;padding:15px 30px;display:flex;justify-content:space-between;align-items:center;}
-.container{max-width:700px;margin:40px auto;background:white;padding:30px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.1);}
-textarea,select,button{width:100%;padding:10px;margin-top:10px;border-radius:8px;border:1px solid #ccc;}
-button{background:#4f6df5;color:white;border:none;cursor:pointer;}
-button:hover{background:#3d56d0;}
-</style>
-</head>
-<body>
-<header>
-    <h1>Mensajes</h1>
-    <a href="dashboard.php" style="color:white;text-decoration:none;">← Volver</a>
-</header>
-<div class="container">
-    <form method="POST">
-        <label>Médico destinatario</label>
-        <select name="doctor_id" required>
-            <option value="">Elegí un médico</option>
-            <?php foreach($doctores as $doc): ?>
-                <option value="<?= $doc['id'] ?>"><?= htmlspecialchars($doc['doctor_name']) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <label>Mensaje</label>
-        <textarea name="mensaje" rows="4" placeholder="Escribí tu mensaje..." required></textarea>
-        <button type="submit">Enviar</button>
-    </form>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>💬 Chats activos</h4>
+    <a href="dashboard.php" class="btn btn-outline-primary btn-sm">← Volver</a>
+  </div>
+
+  <?php if (empty($chats)): ?>
+    <div class="alert alert-info text-center">No hay chats activos con médicos aún.</div>
+  <?php else: ?>
+    <div class="list-group shadow-sm">
+      <?php foreach ($chats as $c): ?>
+        <a href="chat.php?doctor_id=<?= $c['doctor_id'] ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+          <span>👨‍⚕️ <?= htmlspecialchars($c['doctor_fullname']) ?></span>
+          <small class="text-muted"><?= $c['last_msg'] ? date('d/m/Y H:i', strtotime($c['last_msg'])) : 'Sin mensajes' ?></small>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
 </div>
-</body>
-</html>
+
+<?php include("../includes/footer.php"); ?>

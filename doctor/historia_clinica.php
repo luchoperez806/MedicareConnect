@@ -26,17 +26,39 @@ if (!$patient) {
 
 // Actualizar historia clínica si se envió formulario
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $phone = $_POST['phone'] ?? null;
+    $address = $_POST['address'] ?? null;
+    $birthdate = $_POST['birthdate'] ?? null;
     $blood_type = $_POST['blood_type'] ?? null;
     $allergies = $_POST['allergies'] ?? null;
     $medical_conditions = $_POST['medical_conditions'] ?? null;
+    $emergency_contact_name = $_POST['emergency_contact_name'] ?? null;
+    $emergency_contact_phone = $_POST['emergency_contact_phone'] ?? null;
     $observaciones = $_POST['observaciones'] ?? null;
 
-    $stmt = $pdo->prepare("UPDATE patients 
-        SET blood_type=?, allergies=?, medical_conditions=?, observaciones=? 
-        WHERE id=?");
-    $stmt->execute([$blood_type, $allergies, $medical_conditions, $observaciones, $patient_id]);
+    $update = $pdo->prepare("
+        UPDATE patients 
+        SET phone=?, address=?, birthdate=?, blood_type=?, allergies=?, 
+            medical_conditions=?, emergency_contact_name=?, emergency_contact_phone=?, observaciones=? 
+        WHERE id=?
+    ");
+    $update->execute([
+        $phone, $address, $birthdate, $blood_type, $allergies,
+        $medical_conditions, $emergency_contact_name, $emergency_contact_phone,
+        $observaciones, $patient_id
+    ]);
 
     $mensaje = "Historia clínica actualizada correctamente.";
+
+    // Traer datos actualizados
+    $stmt = $pdo->prepare("
+        SELECT u.fullName, u.email, p.*
+        FROM patients p
+        JOIN users u ON p.user_id = u.id
+        WHERE p.id = ?
+    ");
+    $stmt->execute([$patient_id]);
+    $patient = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 include("../includes/header.php");
@@ -61,9 +83,26 @@ body { background: #f4f7fb; font-family: 'Poppins', sans-serif; }
 
   <div class="card p-4">
     <form method="POST">
-      <div class="mb-3">
-        <label class="form-label">Tipo de sangre</label>
-        <input type="text" name="blood_type" value="<?= htmlspecialchars($patient['blood_type'] ?? '') ?>" class="form-control">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Teléfono</label>
+          <input type="text" name="phone" value="<?= htmlspecialchars($patient['phone'] ?? '') ?>" class="form-control">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Dirección</label>
+          <input type="text" name="address" value="<?= htmlspecialchars($patient['address'] ?? '') ?>" class="form-control">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fecha de nacimiento</label>
+          <input type="date" name="birthdate" value="<?= htmlspecialchars($patient['birthdate'] ?? '') ?>" class="form-control">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Tipo de sangre</label>
+          <input type="text" name="blood_type" value="<?= htmlspecialchars($patient['blood_type'] ?? '') ?>" class="form-control">
+        </div>
       </div>
 
       <div class="mb-3">
@@ -76,12 +115,25 @@ body { background: #f4f7fb; font-family: 'Poppins', sans-serif; }
         <textarea name="medical_conditions" rows="3" class="form-control"><?= htmlspecialchars($patient['medical_conditions'] ?? '') ?></textarea>
       </div>
 
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contacto de emergencia</label>
+          <input type="text" name="emergency_contact_name" value="<?= htmlspecialchars($patient['emergency_contact_name'] ?? '') ?>" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Teléfono de emergencia</label>
+          <input type="text" name="emergency_contact_phone" value="<?= htmlspecialchars($patient['emergency_contact_phone'] ?? '') ?>" class="form-control">
+        </div>
+      </div>
+
       <div class="mb-3">
         <label class="form-label">Observaciones / notas del médico</label>
         <textarea name="observaciones" rows="3" class="form-control"><?= htmlspecialchars($patient['observaciones'] ?? '') ?></textarea>
       </div>
 
-      <button type="submit" class="btn btn-gradient">💾 Guardar cambios</button>
+      <div class="text-end">
+        <button type="submit" class="btn btn-gradient">Guardar cambios</button>
+      </div>
     </form>
   </div>
 </div>

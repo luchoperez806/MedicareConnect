@@ -47,12 +47,13 @@ if (!$patientId) {
 $stmt = $pdo->prepare("
     SELECT p.id AS patient_id, u.id AS user_id, u.fullName, u.email,
            p.phone, p.address, p.birthdate, p.blood_type,
-           p.allergies, p.medical_conditions, p.observaciones
+           p.allergies, p.medical_conditions
     FROM patients p
     JOIN users u ON u.id = p.user_id
     WHERE p.id = ?
     LIMIT 1
 ");
+
 $stmt->execute([$patientId]);
 $patient = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -143,8 +144,8 @@ if (!empty($patient['observaciones']))
     $pdf->MultiCell(0, 6, utf8_decode("• Observaciones: {$patient['observaciones']}"));
 if (!empty($patient['medical_conditions']))
     $pdf->MultiCell(0, 6, utf8_decode("• Condiciones Médicas: {$patient['medical_conditions']}"));
-if (empty($patient['observaciones']) && empty($patient['medical_conditions']))
-    $pdf->Cell(0, 6, utf8_decode("Sin información registrada."), 0, 1);
+//if (empty($patient['observaciones']) && empty($patient['medical_conditions']))
+    //$pdf->Cell(0, 6, utf8_decode("Sin información registrada."), 0, 1);
 $pdf->Ln(8);
 
 // ----------------------------------------------------

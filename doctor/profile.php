@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <input type="password" id="password" name="password" placeholder="Dejar vacío si no desea cambiarla">
 
             <button type="submit" class="btn-primary">Guardar Cambios</button>
-            <a href="dashboard.php" class="btn-secondary">Volver al Dashboard</a>
+            <a href="dashboard.php" class="btn-secondary">Volver al Panel</a>
         </form>
     </div>
 </main>

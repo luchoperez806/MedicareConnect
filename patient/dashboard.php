@@ -31,6 +31,19 @@ if (!$patient) {
 }
 $patient_id = (int)$patient['id'];
 
+// ================= MENSAJES NUEVOS =================
+try {
+    $stmtMsg = $pdo->prepare("
+        SELECT COUNT(*) FROM messages
+        WHERE patient_id = ? AND sender = 'doctor' AND is_read = 0
+    ");
+    $stmtMsg->execute([$patient_id]);
+    $newMessages = $stmtMsg->fetchColumn();
+} catch (Exception $e) {
+    $newMessages = 0;
+}
+
+
 // Datos del usuario (para saludo)
 $stmtUser = $pdo->prepare("SELECT fullName, email FROM users WHERE id = ? LIMIT 1");
 $stmtUser->execute([$user_id]);
@@ -240,17 +253,40 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
 <main class="container-max">
   <!-- HERO -->
   <section class="hero-wrap">
-    <div>
-      <h1 class="hero-title">Hola, <?php echo htmlspecialchars($user['fullName']); ?> 👋</h1>
-      <p class="hero-sub">Tu espacio para gestionar turnos, subir estudios y comunicarte con tu médico.</p>
+  <div>
+    <h1 class="hero-title">Hola, <?php echo htmlspecialchars($user['fullName']); ?></h1>
+    <p class="hero-sub">Tu espacio para gestionar turnos, subir estudios y comunicarte con tu médico.</p>
+  </div>
+
+  <div class="quick-actions">
+      
+   <!-- 🔔 Recordatorios automáticos -->
+    <div class="alert alert-info mt-3" style="border-radius:8px;">
+      🔔 Próximamente vas a recibir recordatorios automáticos de tus turnos por mensaje o WhatsApp.
     </div>
-    <div class="quick-actions">
-      <a href="profile.php" class="btn btn-outline">Editar Perfil</a>
-      <a href="change_password.php" class="btn btn-outline">Cambiar Contraseña</a>
-      <a href="export_history.php" class="btn btn-accent">📄 Descargar Historia Clínica</a>
-      <a href="logout.php" class="btn btn-danger">Cerrar sesión</a>
-    </div>
-  </section>
+
+
+    <!-- 💬 Mensajes -->
+    <a href="mensajes.php" class="btn btn-warning position-relative">
+      💬 Mensajes
+      <?php if (!empty($newMessages) && $newMessages > 0): ?>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          <?= $newMessages ?>
+        </span>
+      <?php endif; ?>
+    </a>
+
+    <!-- ⚙️ Perfil y Contraseña -->
+    <a href="profile.php" class="btn btn-outline">Editar Perfil</a>
+    <a href="change_password.php" class="btn btn-outline">Cambiar Contraseña</a>
+
+    <!-- 📄 Historia Clínica -->
+    <a href="export_history.php" class="btn btn-accent">📄 Descargar Historia Clínica</a>
+
+    <!-- 🚪 Cerrar sesión -->
+    <a href="logout.php" class="btn btn-danger">Cerrar sesión</a>
+  </div>
+</section>
 
   <!-- KPIs + CHARTS -->
   <section class="mt-3">
@@ -324,7 +360,131 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
       <?php else: ?>
         <p class="text-muted">No tenés turnos agendados. Reservá uno más abajo 👇</p>
       <?php endif; ?>
+      
+      <hr>
+      
+        <!-- === Listado de todos los turnos (acordeón) === -->
+        <div class="mt-3">
+          <button class="btn btn-outline w-100 toggle-turns" type="button">
+            🗓️ Ver todos mis turnos
+          </button>
+        
+          <div class="turns-container" style="display:none; margin-top:10px;">
+            <?php
+            $stmt = $pdo->prepare("
+                SELECT a.*, u.fullName AS doctor_name
+                FROM appointments a
+                JOIN doctors d ON a.doctor_id = d.id
+                JOIN users u ON d.user_id = u.id
+                WHERE a.patient_id = ?
+                ORDER BY a.appointment_date DESC, a.appointment_time DESC
+            ");
+            $stmt->execute([$patient_id]);
+            $allAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            ?>
+        
+            <?php if (!$allAppointments): ?>
+              <p class="text-muted small mt-2">Aún no registrás turnos previos.</p>
+            <?php else: ?>
+              <div class="appointments-list">
+                <?php foreach ($allAppointments as $a): ?>
+                  <div class="appointment-item <?php echo $a['status']; ?>">
+                    <div class="info">
+                      <strong><?php echo htmlspecialchars($a['doctor_name']); ?></strong><br>
+                      <span><?php echo htmlspecialchars($a['appointment_date']); ?> • <?php echo substr($a['appointment_time'],0,5); ?></span>
+                    </div>
+                    <div class="status">
+                      <span class="badge <?php echo $a['status']; ?>"><?php echo ucfirst($a['status']); ?></span>
+                      <?php if (in_array($a['status'], ['pendiente','confirmada'])): ?>
+                        <form class="cancel-form" method="POST" action="cancel_appointment.php">
+                          <input type="hidden" name="appointment_id" value="<?php echo (int)$a['id']; ?>">
+                          <button type="submit" class="btn-cancel">Cancelar</button>
+                        </form>
+                      <?php endif; ?>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            <?php endif; ?>
+          </div>
+        </div>
+        
+        <style>
+        .toggle-turns {
+          font-weight:700;
+          border-radius:10px;
+          background:#fff;
+          border:1px solid #e2e8f0;
+          box-shadow:0 2px 6px rgba(0,0,0,.04);
+        }
+        .toggle-turns:hover {
+          background:#f8fafc;
+        }
+        
+        .appointments-list {
+          display:flex;
+          flex-direction:column;
+          gap:10px;
+          margin-top:10px;
+        }
+        .appointment-item {
+          background:#fff;
+          border:1px solid #e5e7eb;
+          border-radius:10px;
+          padding:10px 14px;
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          transition:.2s;
+          box-shadow:0 3px 10px rgba(0,0,0,.04);
+        }
+        .appointment-item:hover { transform:scale(1.01); }
+        .appointment-item .info { font-size:.9rem; color:#334155; }
+        .appointment-item .status { display:flex; gap:8px; align-items:center; }
+        .appointment-item .btn-cancel {
+          background:#fee2e2;
+          color:#991b1b;
+          border:1px solid #fecaca;
+          padding:4px 10px;
+          border-radius:8px;
+          font-weight:600;
+          cursor:pointer;
+        }
+        .appointment-item .btn-cancel:hover { background:#fecaca; }
+        </style>
+        
+        <script>
+        // Mostrar / ocultar listado
+        document.querySelector('.toggle-turns')?.addEventListener('click', () => {
+          const container = document.querySelector('.turns-container');
+          if (!container) return;
+          const visible = container.style.display === 'block';
+          container.style.display = visible ? 'none' : 'block';
+        });
+        
+        // Cancelar turno vía AJAX
+        document.querySelectorAll('.cancel-form').forEach(form => {
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!confirm('¿Seguro que querés cancelar este turno?')) return;
+            const fd = new FormData(form);
+            try {
+              const res = await fetch('cancel_appointment.php', { method:'POST', body: fd });
+              const json = await res.json();
+              if (json.success) {
+                alert('Turno cancelado correctamente ✅');
+                location.reload();
+              } else {
+                alert('❌ ' + (json.message || 'Error al cancelar turno.'));
+              }
+            } catch (err) {
+              alert('Error de comunicación.');
+            }
+          });
+        });
+        </script>
 
+       
       <hr>
 
       <h2>Subir estudios</h2>

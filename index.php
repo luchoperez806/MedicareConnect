@@ -159,6 +159,73 @@ footer {
     .hero .logo-circle img { width: 110px; }
     .hero h1 { font-size: 2rem; }
 }
+/* --- Botón fijo EP con tooltip --- */
+.boton-creador {
+    position: fixed;
+    bottom: 25px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    background-color: #fff;
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    z-index: 10000;
+    transition: all 0.3s ease;
+}
+
+.boton-creador:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px #ffeb3b66, 0 0 10px rgba(255,255,255,0.4);
+}
+
+.boton-creador img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.boton-creador:hover img {
+    transform: rotate(4deg);
+}
+
+/* Tooltip */
+.boton-creador[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 110%;
+    right: 50%;
+    transform: translateX(50%) translateY(-5px);
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.boton-creador:hover::before {
+    opacity: 1;
+    transform: translateX(50%) translateY(-15px);
+}
+
+@media (max-width: 768px) {
+    .boton-creador {
+        bottom: 15px;
+        right: 15px;
+        width: 42px;
+        height: 42px;
+        font-size: 15px;
+    }
+}
 </style>
 </head>
 <body>
@@ -203,7 +270,13 @@ footer {
         <a href="login.php?role=doctor" class="doctor-btn">Médico</a>
         <a href="login.php?role=paciente" class="patient-btn">Paciente</a>
     </div>
-    </section>
+</section>
+
+
+<div class="boton-creador" data-tooltip="Diseño a Medida" title="Creador de la Web" onclick="window.location.href='web_creador.php'">
+    <img src="assets/images/logo.png" alt="Web por Imagine" />
+</div>
+
 
 <footer>
     © <span id="year"></span> MedicareConnect — Innovando en salud digital

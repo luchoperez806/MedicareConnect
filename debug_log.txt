@@ -132,3 +132,7 @@
 ✅ Paciente encontrado correctamente
 [2025-10-30 13:23:37] get_patient_data.php ejecutado
 ✅ Paciente encontrado correctamente
+[2025-11-01 14:03:44] get_patient_data.php ejecutado
+✅ Paciente encontrado correctamente
+[2025-11-10 12:54:27] get_patient_data.php ejecutado
+✅ Paciente encontrado correctamente
