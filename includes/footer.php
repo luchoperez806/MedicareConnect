@@ -1,5 +1,3 @@
-</main>
-
 <footer style="
     background: #1a237e;
     color: white;

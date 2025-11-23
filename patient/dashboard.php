@@ -43,7 +43,6 @@ try {
     $newMessages = 0;
 }
 
-
 // Datos del usuario (para saludo)
 $stmtUser = $pdo->prepare("SELECT fullName, email FROM users WHERE id = ? LIMIT 1");
 $stmtUser->execute([$user_id]);
@@ -248,6 +247,25 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
 /* ======= Botones ======= */
 .btn{border:none; border-radius:10px; padding:8px 12px; font-weight:700;}
 .btn:hover{filter:brightness(1.06); transform:translateY(-1px); transition:.2s;}
+
+/* ---- Botón Ver estudio ---- */
+.btn-view-study {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff !important;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    display: inline-block;
+    transition: 0.25s;
+}
+
+.btn-view-study:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
 </style>
 
 <main class="container-max">
@@ -259,12 +277,11 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
   </div>
 
   <div class="quick-actions">
-      
+
    <!-- 🔔 Recordatorios automáticos -->
     <div class="alert alert-info mt-3" style="border-radius:8px;">
       🔔 Próximamente vas a recibir recordatorios automáticos de tus turnos por mensaje o WhatsApp.
     </div>
-
 
     <!-- 💬 Mensajes -->
     <a href="mensajes.php" class="btn btn-warning position-relative">
@@ -360,15 +377,15 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
       <?php else: ?>
         <p class="text-muted">No tenés turnos agendados. Reservá uno más abajo 👇</p>
       <?php endif; ?>
-      
+
       <hr>
-      
+
         <!-- === Listado de todos los turnos (acordeón) === -->
         <div class="mt-3">
           <button class="btn btn-outline w-100 toggle-turns" type="button">
             🗓️ Ver todos mis turnos
           </button>
-        
+
           <div class="turns-container" style="display:none; margin-top:10px;">
             <?php
             $stmt = $pdo->prepare("
@@ -382,7 +399,7 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
             $stmt->execute([$patient_id]);
             $allAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
             ?>
-        
+
             <?php if (!$allAppointments): ?>
               <p class="text-muted small mt-2">Aún no registrás turnos previos.</p>
             <?php else: ?>
@@ -408,51 +425,99 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
             <?php endif; ?>
           </div>
         </div>
-        
-        <style>
+
+       <style>
+    /* ========== Botón ver turnos ========== */
         .toggle-turns {
-          font-weight:700;
-          border-radius:10px;
-          background:#fff;
-          border:1px solid #e2e8f0;
-          box-shadow:0 2px 6px rgba(0,0,0,.04);
+        font-weight:700;
+        border-radius:10px;
+        background:#fff;
+        border:1px solid #e2e8f0;
+        box-shadow:0 2px 6px rgba(0,0,0,.04);
         }
         .toggle-turns:hover {
-          background:#f8fafc;
+        background:#f8fafc;
         }
-        
+
+        /* ========== Lista de turnos ========== */
         .appointments-list {
-          display:flex;
-          flex-direction:column;
-          gap:10px;
-          margin-top:10px;
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+        margin-top:10px;
         }
         .appointment-item {
-          background:#fff;
-          border:1px solid #e5e7eb;
-          border-radius:10px;
-          padding:10px 14px;
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          transition:.2s;
-          box-shadow:0 3px 10px rgba(0,0,0,.04);
+        background:#fff;
+        border:1px solid #e5e7eb;
+        border-radius:10px;
+        padding:10px 14px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        transition:.2s;
+        box-shadow:0 3px 10px rgba(0,0,0,.04);
         }
         .appointment-item:hover { transform:scale(1.01); }
         .appointment-item .info { font-size:.9rem; color:#334155; }
         .appointment-item .status { display:flex; gap:8px; align-items:center; }
+
         .appointment-item .btn-cancel {
-          background:#fee2e2;
-          color:#991b1b;
-          border:1px solid #fecaca;
-          padding:4px 10px;
-          border-radius:8px;
-          font-weight:600;
-          cursor:pointer;
+        background:#fee2e2;
+        color:#991b1b;
+        border:1px solid #fecaca;
+        padding:4px 10px;
+        border-radius:8px;
+        font-weight:600;
+        cursor:pointer;
         }
         .appointment-item .btn-cancel:hover { background:#fecaca; }
-        </style>
-        
+
+        /* ========== Acciones de Estudios (Ver – Editar – Eliminar) ========== */
+        .study-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .study-actions a {
+            white-space: nowrap;
+        }
+
+        /* Botón Editar */
+        .btn-edit-study {
+            background: #f1f5f9;
+            color: #0f172a !important;
+            border: 1px solid #d1d5db;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: 0.25s;
+        }
+
+        .btn-edit-study:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        /* ========== FIX: Alinear con el footer ========== */
+        .grid-3 > .card-lite:last-child {
+            min-height: 520px; /* Ajustable */
+        }
+
+        /* Obligar al contenido a ocupar toda la pantalla para que el footer baje */
+        body, html {
+            height: 100%;
+        }
+
+        main.container-max {
+            min-height: calc(100vh - 200px); /* Ajustable según el header + footer */
+        }
+
+
+    </style>
+
         <script>
         // Mostrar / ocultar listado
         document.querySelector('.toggle-turns')?.addEventListener('click', () => {
@@ -461,7 +526,7 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
           const visible = container.style.display === 'block';
           container.style.display = visible ? 'none' : 'block';
         });
-        
+
         // Cancelar turno vía AJAX
         document.querySelectorAll('.cancel-form').forEach(form => {
           form.addEventListener('submit', async (e) => {
@@ -484,7 +549,7 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
         });
         </script>
 
-       
+
       <hr>
 
       <h2>Subir estudios</h2>
@@ -597,29 +662,73 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
           $myStudies = $stmt->fetchAll(PDO::FETCH_ASSOC);
         ?>
         <?php if (!$myStudies): ?>
-          <p class="text-muted small">Aún no subiste estudios.</p>
-        <?php else: ?>
-          <ul class="studies-list">
-            <?php foreach ($myStudies as $s): ?>
-              <li>
-                <div class="study-info">
-                  <a href="../uploads/<?php echo htmlspecialchars($s['file_name']); ?>" target="_blank">
-                    <?php echo htmlspecialchars($s['file_name']); ?>
-                  </a>
-                  <span class="small"><?php echo htmlspecialchars($s['uploaded_at']); ?></span>
-                </div>
-                <div class="study-actions">
-                  <a class="btn btn-sm btn-outline" href="edit_study.php?id=<?php echo (int)$s['id']; ?>">Editar</a>
-                  <a class="btn btn-sm btn-danger" href="delete_study.php?id=<?php echo (int)$s['id']; ?>" onclick="return confirm('¿Eliminar este estudio?');">Eliminar</a>
-                </div>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        <?php endif; ?>
+  <p class="text-muted small">Aún no subiste estudios.</p>
+<?php else: ?>
+  <div class="accordion" id="studiesAccordion">
+    <?php foreach ($myStudies as $s): ?>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading<?= $s['id'] ?>">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#study<?= $s['id'] ?>">
+              <?= htmlspecialchars($s['file_name']); ?>
+          </button>
+        </h2>
+
+        <div id="study<?= $s['id'] ?>" class="accordion-collapse collapse"
+             data-bs-parent="#studiesAccordion">
+          <div class="accordion-body">
+
+            <p class="small text-muted mb-2">
+              Subido: <?= htmlspecialchars($s['uploaded_at']); ?>
+            </p>
+
+            <div class="d-flex gap-2">
+
+              <!-- VER -->
+              <a class="btn btn-sm btn-primary"
+                 href="../uploads/<?= htmlspecialchars($s['file_name']); ?>"
+                 target="_blank">
+                  Ver estudio
+              </a>
+
+              <!-- EDITAR -->
+              <a class="btn btn-sm btn-warning"
+                 href="edit_study.php?id=<?= (int)$s['id']; ?>">
+                 Editar
+              </a>
+
+              <!-- ELIMINAR -->
+              <a class="btn btn-sm btn-danger"
+                href="delete_study.php?id=<?= (int)$s['id']; ?>"
+                onclick="return confirm('¿Eliminar este estudio?');">
+                 Eliminar
+              </a>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    <?php endforeach; ?>
+  </div>
+<?php endif; ?>
+
       </div>
     </div>
   </section>
-</main>
+  <style>
+    /* Forzar que el main ocupe toda la pantalla y empuje el footer abajo */
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    main.container-max {
+        min-height: calc(100vh - 180px); /* Ajustá si el footer mide más o menos */
+        display: block;
+    }
+</style>
 
 <!-- Modal de reserva -->
 <div id="reserveModal" class="modal">
@@ -641,6 +750,8 @@ body{background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; 
     <div id="reserveFeedback" class="small mt-2"></div>
   </div>
 </div>
+
+</main>
 
 <?php include("../includes/footer.php"); ?>
 
